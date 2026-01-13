@@ -4,6 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = "amanuxsource/ci-cd-project"
         IMAGE_TAG  = "latest"
+        SONAR_SCANNER = tool 'sonar-scanner' // the name you gave in Jenkins Tools
     }
 
     stages {
@@ -12,6 +13,20 @@ pipeline {
             steps {
                 git branch: 'master',
                     url: 'https://github.com/Aman-ux-source/ci-cd-project.git'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar-server') { // the name you gave in Jenkins SonarQube config
+                    sh """
+                    ${SONAR_SCANNER}/bin/sonar-scanner \
+                    -Dsonar.projectKey=ci-cd-project \
+                    -Dsonar.projectName=ci-cd-project \
+                    -Dsonar.sources=. \
+                    -Dsonar.language=web
+                    """
+                }
             }
         }
 
@@ -49,4 +64,3 @@ pipeline {
         }
     }
 }
-
